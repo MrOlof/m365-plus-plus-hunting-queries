@@ -1,0 +1,5 @@
+// Proxy configuration changes via registry
+//Detect Proxy configurations changes on endpoints
+DeviceRegistryEvents 
+| where RegistryValueName contains "AutoConfigURL" or RegistryValueName contains "Proxy"
+| project DeviceName, RegistryKey, RegistryValueName,RegistryValueData

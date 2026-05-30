@@ -1,0 +1,4 @@
+// Security log cleared
+DeviceEvents
+| where ActionType == 'SecurityLogCleared'
+| project Timestamp, DeviceName, ActionType

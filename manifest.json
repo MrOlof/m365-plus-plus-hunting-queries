@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "queries": [
     {
       "id": "mde-onboarded-not-reporting",
@@ -8,7 +8,9 @@
       "category": "MDE coverage & health",
       "mitreTactics": [],
       "mitreTechniques": [],
-      "tables": ["DeviceInfo"],
+      "tables": [
+        "DeviceInfo"
+      ],
       "platform": "defender",
       "license": "M365++-original",
       "credit": "M365++",
@@ -22,7 +24,9 @@
       "category": "MDE coverage & health",
       "mitreTactics": [],
       "mitreTechniques": [],
-      "tables": ["DeviceInfo"],
+      "tables": [
+        "DeviceInfo"
+      ],
       "platform": "defender",
       "license": "M365++-original",
       "credit": "M365++",
@@ -34,9 +38,15 @@
       "title": "Antivirus configuration not compliant",
       "description": "Devices failing one or more Defender Antivirus secure-configuration checks (real-time protection, signature freshness, tamper protection, etc.) from TVM's configuration assessment.",
       "category": "MDE coverage & health",
-      "mitreTactics": ["Defense Evasion"],
-      "mitreTechniques": ["T1562.001"],
-      "tables": ["DeviceTvmSecureConfigurationAssessment"],
+      "mitreTactics": [
+        "Defense Evasion"
+      ],
+      "mitreTechniques": [
+        "T1562.001"
+      ],
+      "tables": [
+        "DeviceTvmSecureConfigurationAssessment"
+      ],
       "platform": "defender",
       "license": "M365++-original",
       "credit": "M365++",
@@ -48,9 +58,14 @@
       "title": "Recent malware detections (last 7 days)",
       "description": "Devices with malware-category alerts in the past week, ranked by distinct alert count with a sample of alert titles.",
       "category": "Threat activity",
-      "mitreTactics": ["Execution"],
+      "mitreTactics": [
+        "Execution"
+      ],
       "mitreTechniques": [],
-      "tables": ["AlertInfo", "AlertEvidence"],
+      "tables": [
+        "AlertInfo",
+        "AlertEvidence"
+      ],
       "platform": "defender",
       "license": "M365++-original",
       "credit": "M365++",
@@ -64,12 +79,643 @@
       "category": "Threat activity",
       "mitreTactics": [],
       "mitreTechniques": [],
-      "tables": ["AlertInfo", "AlertEvidence"],
+      "tables": [
+        "AlertInfo",
+        "AlertEvidence"
+      ],
       "platform": "defender",
       "license": "M365++-original",
       "credit": "M365++",
       "sourceUrl": "https://github.com/MrOlof/m365-plus-plus-hunting-queries",
       "file": "queries/threat-activity/high-severity-by-device.kql"
+    },
+    {
+      "id": "azsent-high-volume-lsass-memory-read",
+      "title": "High volume LSASS memory read",
+      "description": "Identifies processes extracting an abnormally large volume of memory (>40MB) from LSASS. A hit indicates likely credential dumping, even if the process runs as SYSTEM, because it tracks physical bytes copied rather than process identity.",
+      "category": "Credential access",
+      "mitreTactics": [
+        "Credential Access"
+      ],
+      "mitreTechniques": [
+        "T1003.001"
+      ],
+      "tables": [
+        "DeviceEvents",
+        "DeviceFileCertificateInfo"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Younes Al Taleb",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Credential%20Access/HighVolumeLsassMemoryRead.yaml",
+      "file": "queries/credential-access/azsent-high-volume-lsass-memory-read.kql"
+    },
+    {
+      "id": "azsent-suspicious-lsass-access-nonsystem",
+      "title": "Suspicious LSASS access request by non-system account",
+      "description": "Flags interactive (non-SYSTEM) user accounts requesting highly privileged access masks against LSASS. A hit catches credential dumping intent at handle-request time, even if the memory read later fails or is delayed.",
+      "category": "Credential access",
+      "mitreTactics": [
+        "Credential Access"
+      ],
+      "mitreTechniques": [
+        "T1003.001"
+      ],
+      "tables": [
+        "DeviceEvents",
+        "DeviceFileCertificateInfo"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Younes Al Taleb",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Credential%20Access/SuspiciousLsassAccessRequest.yaml",
+      "file": "queries/credential-access/azsent-suspicious-lsass-access-nonsystem.kql"
+    },
+    {
+      "id": "azsent-private-key-files",
+      "title": "Private Key Files",
+      "description": "Finds file operations on files with extensions commonly used to store private keys (.pfx/.pfn/.p12). A hit may indicate an attacker locating exportable certificates that could be brute-forced offline.",
+      "category": "Credential access",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceFileEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Credential%20Access/Private%20Key%20Files.yaml",
+      "file": "queries/credential-access/azsent-private-key-files.kql"
+    },
+    {
+      "id": "azsent-ad-sensitive-group-modifications",
+      "title": "Active Directory Sensitive Group Modifications",
+      "description": "Shows all membership changes to Tier 0 Active Directory groups (Domain Admins, Schema Admins, Enterprise Admins, etc.). A hit means a privileged group changed and should be confirmed as authorized. Requires Defender for Identity.",
+      "category": "Identity",
+      "mitreTactics": [
+        "Privilege escalation",
+        "Credential Access"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "IdentityDirectoryEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Credential%20Access/Active%20Directory%20Sensitive%20Group%20Modifications.yaml",
+      "file": "queries/identity/azsent-ad-sensitive-group-modifications.kql"
+    },
+    {
+      "id": "azsent-potential-defender-tampering",
+      "title": "Potential Microsoft Defender Tampering",
+      "description": "Identifies attempts to stop, disable, or reconfigure Microsoft Defender services via sc/net/taskkill/PowerShell/registry edits. A hit suggests an actor is disabling endpoint protection before further activity.",
+      "category": "Defense evasion",
+      "mitreTactics": [
+        "Defense evasion"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Defense%20evasion/PotentialMicrosoftDefenderTampering%5BSolarigate%5D.yaml",
+      "file": "queries/defense-evasion/azsent-potential-defender-tampering.kql"
+    },
+    {
+      "id": "azsent-clear-system-logs-fsutil",
+      "title": "Clear system logs with fsutil",
+      "description": "Detects use of fsutil.exe to delete the USN change journal, an anti-forensic technique seen in ransomware campaigns. A hit indicates an attacker is destroying file-system forensic artifacts.",
+      "category": "Defense evasion",
+      "mitreTactics": [
+        "Defense evasion"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Defense%20evasion/clear-system-logs.yaml",
+      "file": "queries/defense-evasion/azsent-clear-system-logs-fsutil.kql"
+    },
+    {
+      "id": "azsent-shimcache-flushed",
+      "title": "Shimcache flushed",
+      "description": "Searches for attempts to flush the Shimcache (AppCompatCache) via rundll32, which may indicate anti-forensic or defense evasion activity. A hit warrants checking why cached execution evidence was cleared.",
+      "category": "Defense evasion",
+      "mitreTactics": [
+        "Defense evasion"
+      ],
+      "mitreTechniques": [
+        "T1112"
+      ],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Vaasudev_Kala",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Defense%20evasion/shimcache-flushed.yaml",
+      "file": "queries/defense-evasion/azsent-shimcache-flushed.kql"
+    },
+    {
+      "id": "azsent-adfs-domain-trust-mods",
+      "title": "ADFS / domain federation trust modifications",
+      "description": "Finds changes to domain federation trust settings or switches from managed to federated authentication. A hit can indicate an actor (e.g. Nobelium) adding a trusted signing certificate to forge authentication tokens.",
+      "category": "Defense evasion",
+      "mitreTactics": [
+        "Defense evasion"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "CloudAppEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Defense%20evasion/ADFSDomainTrustMods%5BNobelium%5D.yaml",
+      "file": "queries/defense-evasion/azsent-adfs-domain-trust-mods.kql"
+    },
+    {
+      "id": "azsent-anomalous-mailbox-access-by-other-user",
+      "title": "Anomaly of MailItemsAccessed by other users' mailbox",
+      "description": "Looks for users accessing multiple other users' mailboxes, or many folders within another user's mailbox, against a 30-day baseline. A hit may indicate mailbox compromise or unauthorized data collection.",
+      "category": "Email",
+      "mitreTactics": [
+        "Collection"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "CloudAppEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Collection/Anomaly%20of%20MailItemAccess%20by%20Other%20Users%20Mailbox%20%5BNobelium%5D.yaml",
+      "file": "queries/email/azsent-anomalous-mailbox-access-by-other-user.kql"
+    },
+    {
+      "id": "azsent-smb-shares-discovery",
+      "title": "SMB shares discovery",
+      "description": "Finds processes that connected to more than 10 IP addresses over port 445 (SMB), suggesting network share scanning. A hit may indicate reconnaissance ahead of lateral movement.",
+      "category": "Lateral movement",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceNetworkEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Discovery/SMB%20shares%20discovery.yaml",
+      "file": "queries/lateral-movement/azsent-smb-shares-discovery.kql"
+    },
+    {
+      "id": "azsent-kerberoasting-asreproasting-ldap",
+      "title": "Kerberoasting / AS-REP roasting LDAP queries",
+      "description": "Detects LDAP queries searching for SPNs (Kerberoasting) or accounts with Kerberos pre-auth disabled (AS-REP roasting), correlated to the originating process. A hit may indicate Rubeus, Kerberoast, or BloodHound activity. Requires Defender for Identity.",
+      "category": "Credential access",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "IdentityQueryEvents",
+        "DeviceNetworkEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Discovery/Roasting.yaml",
+      "file": "queries/credential-access/azsent-kerberoasting-asreproasting-ldap.kql"
+    },
+    {
+      "id": "azsent-nbtscan-activity",
+      "title": "nbtscan activity",
+      "description": "Detects execution of nbtscan.exe (by name or known hashes), a NetBIOS scanning tool seen in the Operation Soft Cell campaigns. A hit may indicate internal network reconnaissance.",
+      "category": "Threat activity",
+      "mitreTactics": [
+        "Discovery"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceProcessEvents",
+        "DeviceFileEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Discovery/detect-nbtscan-activity.yaml",
+      "file": "queries/threat-activity/azsent-nbtscan-activity.kql"
+    },
+    {
+      "id": "azsent-enumeration-users-groups-net",
+      "title": "Enumeration of users & groups via net commands",
+      "description": "Finds attempts to list domain users or groups using net.exe (net user /domain, net group /domain). A hit suggests account discovery often preceding lateral movement.",
+      "category": "Lateral movement",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Discovery/Enumeration%20of%20users%20%26%20groups%20for%20lateral%20movement.yaml",
+      "file": "queries/lateral-movement/azsent-enumeration-users-groups-net.kql"
+    },
+    {
+      "id": "azsent-tor-client-connections",
+      "title": "Tor client / Meek plugin connections",
+      "description": "Looks for active network connections from the Tor client or the Meek pluggable transport, returning prevalence and file hashes. A hit may indicate anonymized C2 or data egress.",
+      "category": "Threat activity",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceNetworkEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Command%20and%20Control/Tor.yaml",
+      "file": "queries/threat-activity/azsent-tor-client-connections.kql"
+    },
+    {
+      "id": "azsent-connection-to-rare-dns-hosts",
+      "title": "Connection to rare DNS hosts",
+      "description": "Breaks remote hostnames into second/third-level domains and surfaces destinations contacted by very few devices. A hit highlights low-prevalence domains that may be C2; expect tuning noise.",
+      "category": "Threat activity",
+      "mitreTactics": [
+        "Command and control"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceNetworkEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Command%20and%20Control/Connection%20to%20Rare%20DNS%20Hosts.yaml",
+      "file": "queries/threat-activity/azsent-connection-to-rare-dns-hosts.kql"
+    },
+    {
+      "id": "azsent-mdca-mass-downloads",
+      "title": "Mass downloads in the last 7 days",
+      "description": "Surfaces accounts that downloaded more than 50 files in a 5-minute window, as recorded by Defender for Cloud Apps. A hit may indicate data staging or exfiltration. Requires an MDCA app connector.",
+      "category": "Exfiltration",
+      "mitreTactics": [
+        "Exfiltration"
+      ],
+      "mitreTechniques": [
+        "T1020"
+      ],
+      "tables": [
+        "CloudAppEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Cloud%20Apps/mass-downloads.yaml",
+      "file": "queries/exfiltration/azsent-mdca-mass-downloads.kql"
+    },
+    {
+      "id": "azsent-mdca-entra-role-adds",
+      "title": "Entra ID role adds in the last 7 days",
+      "description": "Lists directory role additions captured by Defender for Cloud Apps, including who was added and by whom. A hit may indicate privilege escalation. Requires an MDCA app connector.",
+      "category": "Identity",
+      "mitreTactics": [
+        "Privilege Escalation"
+      ],
+      "mitreTechniques": [
+        "T1548"
+      ],
+      "tables": [
+        "CloudAppEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Cloud%20Apps/aad-role-adds.yaml",
+      "file": "queries/identity/azsent-mdca-entra-role-adds.kql"
+    },
+    {
+      "id": "azsent-mde-out-of-date-clients",
+      "title": "MDE: find out-of-date Defender clients",
+      "description": "Lists onboarded Windows devices whose Defender client version is below a defined baseline. A hit highlights endpoints needing platform/client updates for full protection coverage.",
+      "category": "MDE coverage & health",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceInfo"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Matt Novitsch",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Device%20Inventory/MDE_FindOutOfDateClients.YAML",
+      "file": "queries/mde-coverage-health/azsent-mde-out-of-date-clients.kql"
+    },
+    {
+      "id": "azsent-mde-not-onboarded-endpoints",
+      "title": "MDE: list all not-onboarded endpoints",
+      "description": "Lists devices seen in the last day whose onboarding status is not 'Onboarded'. A hit highlights gaps in Defender for Endpoint coverage.",
+      "category": "MDE coverage & health",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceInfo"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Matt Novitsch",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Discovery/MDE_ListAllNotOnboardedEnpoints.YAML",
+      "file": "queries/mde-coverage-health/azsent-mde-not-onboarded-endpoints.kql"
+    },
+    {
+      "id": "azsent-proxy-changes-via-registry",
+      "title": "Proxy configuration changes via registry",
+      "description": "Detects registry changes to proxy settings (AutoConfigURL / Proxy values). A hit may indicate an attacker redirecting traffic for interception or C2.",
+      "category": "Defense evasion",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceRegistryEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Matt Novitsch",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Discovery/MDE_ProxyChangesViaRegistry.YAML",
+      "file": "queries/defense-evasion/azsent-proxy-changes-via-registry.kql"
+    },
+    {
+      "id": "azsent-usb-mounted-files-copied",
+      "title": "USB mounted and files copied",
+      "description": "Correlates USB mount events with files subsequently created on the mounted drive. A hit may indicate data exfiltration to removable media.",
+      "category": "Exfiltration",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceEvents",
+        "DeviceFileEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Matt Novitsch",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Discovery/MDE_ShowUSBMountedandfilescopied.YAML",
+      "file": "queries/exfiltration/azsent-usb-mounted-files-copied.kql"
+    },
+    {
+      "id": "azsent-wdigest-caching-enabled",
+      "title": "WDigest credential caching enabled",
+      "description": "Returns attempts to enable WDigest plaintext credential caching via the UseLogonCredential registry value or equivalent command lines. A hit indicates staging for plaintext credential harvesting.",
+      "category": "Credential access",
+      "mitreTactics": [
+        "Credential Access"
+      ],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceRegistryEvents",
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "MIT",
+      "credit": "Microsoft Sentinel community",
+      "sourceUrl": "https://github.com/Azure/Azure-Sentinel/blob/master/Hunting%20Queries/Microsoft%20365%20Defender/Credential%20Access/wdigest-caching.yaml",
+      "file": "queries/credential-access/azsent-wdigest-caching-enabled.kql"
+    },
+    {
+      "id": "bertjanp-encoded-powershell-commands",
+      "title": "All encoded PowerShell commands executed",
+      "description": "Finds PowerShell executions using -encodedcommand/-enc, decodes the Base64, and summarizes unique decoded commands per device. A hit surfaces obfuscated PowerShell worth reviewing.",
+      "category": "Defense evasion",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1027"
+      ],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/PowerShellEncodedCommandsExecuted.md",
+      "file": "queries/defense-evasion/bertjanp-encoded-powershell-commands.kql"
+    },
+    {
+      "id": "bertjanp-amsi-script-detections",
+      "title": "AMSI script detections",
+      "description": "Lists AmsiScriptDetection events, where the Antimalware Scan Interface flagged a script. Because these do not always raise an alert, a hit may reveal malicious scripting that otherwise went unnoticed.",
+      "category": "Threat activity",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1059.001"
+      ],
+      "tables": [
+        "DeviceEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/AMSIScriptDetections.md",
+      "file": "queries/threat-activity/bertjanp-amsi-script-detections.kql"
+    },
+    {
+      "id": "bertjanp-webshell-detection",
+      "title": "Possible webshell on the endpoint",
+      "description": "Looks for shell processes (cmd, powershell, /bin/bash, etc.) spawned by web server processes (w3wp, httpd, nginx, tomcat). A hit may indicate a webshell executing commands on an internet-facing server.",
+      "category": "Threat activity",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1505.003"
+      ],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/WebshellDetection.md",
+      "file": "queries/threat-activity/bertjanp-webshell-detection.kql"
+    },
+    {
+      "id": "bertjanp-shadow-copy-deletion",
+      "title": "Known shadow copy delete command executed",
+      "description": "Triggers on known ransomware commands that delete volume shadow copies and backups or disable System Restore. A hit indicates likely pre-ransomware recovery inhibition.",
+      "category": "Threat activity",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1490"
+      ],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/ShadowCopyDeletion.md",
+      "file": "queries/threat-activity/bertjanp-shadow-copy-deletion.kql"
+    },
+    {
+      "id": "bertjanp-ntds-dit-modifications",
+      "title": "NTDS.DIT file modifications",
+      "description": "Surfaces file-modification events touching the Active Directory database (ntds.dit), summarized by responsible process and account. A hit may indicate domain credential theft, though backup tools can appear too.",
+      "category": "Credential access",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1003.003"
+      ],
+      "tables": [
+        "DeviceFileEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/NTDSDitFileModifications.md",
+      "file": "queries/credential-access/bertjanp-ntds-dit-modifications.kql"
+    },
+    {
+      "id": "bertjanp-bloodhound-process-detection",
+      "title": "BloodHound process detection",
+      "description": "Detects BloodHound/SharpHound usage by its known command-line patterns. A hit may indicate Active Directory attack-path reconnaissance.",
+      "category": "Threat activity",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/BloodHoundProcessDetection.md",
+      "file": "queries/threat-activity/bertjanp-bloodhound-process-detection.kql"
+    },
+    {
+      "id": "bertjanp-scheduled-tasks-from-appdata",
+      "title": "Scheduled tasks from AppData created or updated",
+      "description": "Detects scheduled tasks created/updated that reference executables or scripts in AppData, a common low-privilege persistence technique (OneDrive excluded). A hit may indicate malware persistence.",
+      "category": "Persistence",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1053.005"
+      ],
+      "tables": [
+        "DeviceEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/ScheduledTasksFromAppDataCreatedOrUpdated.md",
+      "file": "queries/persistence/bertjanp-scheduled-tasks-from-appdata.kql"
+    },
+    {
+      "id": "bertjanp-defender-av-exclusion-events",
+      "title": "Defender AV exclusion events",
+      "description": "Detects Add-MpPreference/Set-MpPreference adding Defender exclusions (path, extension, process, IP) via command line or PowerShell. A hit indicates an actor carving out blind spots for malware.",
+      "category": "Defense evasion",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1562.001"
+      ],
+      "tables": [
+        "DeviceProcessEvents",
+        "DeviceEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/DefenderExclusionEvents.md",
+      "file": "queries/defense-evasion/bertjanp-defender-av-exclusion-events.kql"
+    },
+    {
+      "id": "bertjanp-security-log-cleared",
+      "title": "Security log cleared",
+      "description": "Triggers on the SecurityLogCleared event. A hit may indicate an actor erasing the Windows Security event log to hide activity (can also be benign when a full log is cleared).",
+      "category": "Defense evasion",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1070.001"
+      ],
+      "tables": [
+        "DeviceEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/SecurityLogCleared.md",
+      "file": "queries/defense-evasion/bertjanp-security-log-cleared.kql"
+    },
+    {
+      "id": "bertjanp-user-added-to-sensitive-group",
+      "title": "User added to sensitive group",
+      "description": "Detects additions to sensitive AD groups (Domain Admins, Enterprise Admins, Exchange Admins) via Defender for Identity, showing who was added and by whom. A hit may indicate privilege escalation.",
+      "category": "Identity",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1078.002"
+      ],
+      "tables": [
+        "IdentityDirectoryEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Identity/UserAddedToSensitiveGroup.md",
+      "file": "queries/identity/bertjanp-user-added-to-sensitive-group.kql"
+    },
+    {
+      "id": "bertjanp-anomalous-ldap-traffic",
+      "title": "Anomalous amount of LDAP traffic",
+      "description": "Baselines per-device LDAP query volume (via Defender for Identity) and flags workstations with anomalous spikes. A hit may indicate reconnaissance using LDAP enumeration.",
+      "category": "Identity",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1087.002"
+      ],
+      "tables": [
+        "DeviceInfo",
+        "IdentityQueryEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Identity/AnomalousLDAPTraffic.md",
+      "file": "queries/identity/bertjanp-anomalous-ldap-traffic.kql"
+    },
+    {
+      "id": "bertjanp-oauth-apps-mail-permissions",
+      "title": "OAuth apps with Mail.* Graph permissions",
+      "description": "Lists OAuth applications holding Mail.* Microsoft Graph permissions, which grant access to mailbox data. A hit highlights apps that could be abused for mailbox access and warrants consent review.",
+      "category": "Cloud apps",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": [
+        "OAuthAppInfo"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Cloud%20Apps/OAuthAppInfo/ApplicationMailPermission.md",
+      "file": "queries/cloud-apps/bertjanp-oauth-apps-mail-permissions.kql"
+    },
+    {
+      "id": "bertjanp-certutil-remote-download",
+      "title": "Certutil remote download",
+      "description": "Detects certutil.exe used with urlcache/-f and an http URL to download remote files, a common LOLBin ingress technique. A hit may indicate tool/payload transfer onto a host.",
+      "category": "Threat activity",
+      "mitreTactics": [],
+      "mitreTechniques": [
+        "T1218",
+        "T1105"
+      ],
+      "tables": [
+        "DeviceProcessEvents"
+      ],
+      "platform": "defender",
+      "license": "BSD-3-Clause",
+      "credit": "@Bert-JanP",
+      "sourceUrl": "https://github.com/Bert-JanP/Hunting-Queries-Detection-Rules/blob/main/Defender%20For%20Endpoint/Living%20Off%20The%20Land/CertutilRemoteDownload.md",
+      "file": "queries/threat-activity/bertjanp-certutil-remote-download.kql"
     }
   ]
 }

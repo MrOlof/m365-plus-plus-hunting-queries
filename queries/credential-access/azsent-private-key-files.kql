@@ -1,0 +1,4 @@
+// Private Key Files
+DeviceFileEvents
+| where Timestamp > ago(7d)
+| where FileName endswith '.pfx' or FileName endswith '.pfn' or FileName endswith '.p12'

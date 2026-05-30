@@ -1,0 +1,10 @@
+// Entra ID role adds in the last 7 days
+let LookBack = 7d;
+CloudAppEvents
+| where ActionType in ("Add member to role.") and Timestamp > ago(LookBack)
+| extend FirstElement = ActivityObjects[0], SecondElement = ActivityObjects[1], ThirdElement = ActivityObjects[2]
+| extend Type = FirstElement.ServiceObjectType
+| extend RoleName = FirstElement.Name
+| extend UserAddedName = SecondElement.Name 
+| extend UserAddedObjectId = SecondElement.Id
+| project Timestamp,Type,ActionType,RoleName,UserAddedName,UserAddedObjectId,PerformedByObjectId = AccountId,PerformedByDisplayName
