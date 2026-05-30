@@ -1,0 +1,13 @@
+// Regsvr32.exe created as subprocess by an Office Application
+let OfficeApplications = dynamic(['winword.exe', 'powerpnt.exe', 'excel.exe']);
+DeviceProcessEvents
+| where FileName == "regsvr32.exe"
+| where InitiatingProcessFileName has_any (OfficeApplications)
+| project
+     Timestamp,
+     DeviceName,
+     AccountName,
+     AccountDomain,
+     ProcessCommandLine,
+     InitiatingProcessCommandLine,
+     InitiatingProcessFileName

@@ -1,0 +1,4 @@
+// Windows Network Sniffing
+DeviceProcessEvents
+| where FileName == "PktMon.exe"
+| project Timestamp, DeviceName, ProcessCommandLine

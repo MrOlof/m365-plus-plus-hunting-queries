@@ -1,0 +1,5 @@
+// Detect Office products launching wmic.exe
+// Office products spawning WMI
+DeviceProcessEvents
+| where InitiatingProcessFileName in~ ("winword.exe", "excel.exe", "outlook.exe")
+and FileName =~"wmic.exe"

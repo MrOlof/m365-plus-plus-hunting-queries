@@ -1,0 +1,2 @@
+// 7-Zip used to prepare data for exfiltration
+DeviceProcessEvents | where FileName == "7z.exe" | where ProcessCommandLine contains "ProgramData\\pst"

@@ -1,0 +1,6 @@
+// Find LNK files on a specific endpoint
+//Find LNK files on certain devices
+DeviceFileEvents
+| where DeviceName  == "EndpointNameHere"
+| where FileName contains ".LNK" 
+| project Timestamp, DeviceName, ActionType, FileName, FolderPath, PreviousFileName, PreviousFolderPath, InitiatingProcessAccountName, InitiatingProcessFolderPath

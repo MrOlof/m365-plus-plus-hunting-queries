@@ -1,0 +1,11 @@
+// PsExec Usage
+DeviceProcessEvents
+// Collect all executed psexec commands
+| where ProcessCommandLine contains "psexec.exe"
+// Extract the remove device
+| extend RemoteDevice = extract(@'\\\\(.*)c:', 1, ProcessCommandLine)
+// If in your device onboarding Enable-PsRemoting is executed filter the line below
+//| where not(ProcessCommandLine has_all ('powershell -command "Enable-PsRemoting -Force"', 'psexec.exe'))
+// Collect stats and lists with remote devices and executed commands
+| summarize TotalRemoteDevices = dcount(RemoteDevice), RemoteDeviceList = make_set(RemoteDevice), ExecutedCommands = make_set(ProcessCommandLine) by DeviceName
+| sort by TotalRemoteDevices

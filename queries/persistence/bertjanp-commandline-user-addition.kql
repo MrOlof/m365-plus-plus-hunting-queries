@@ -1,0 +1,5 @@
+// Commandline User Addition
+DeviceProcessEvents
+| where FileName in ("net.exe", "net1.exe")
+| where ProcessCommandLine has_all ("add", "user") 
+| project Timestamp, DeviceName, ProcessCommandLine, InitiatingProcessCommandLine

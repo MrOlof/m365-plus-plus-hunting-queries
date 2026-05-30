@@ -1,0 +1,8 @@
+// Browser extension enumeration via DeviceFileEvents
+DeviceFileEvents
+| where TimeGenerated >= ago(180d)
+| where FileName endswith ".crx"
+| extend ExtensionId = tolower(split(FileName, "_")[0])
+| where ExtensionId matches regex @"^[a-p]{32}$"
+| summarize DeviceCount = dcount(DeviceName) by ExtensionId
+| sort by DeviceCount desc

@@ -1,0 +1,6 @@
+// Detect inactive AD service accounts
+IdentityLogonEvents 
+| project Timestamp, AccountName, DeviceName, LogonType
+| where AccountName startswith "XXX" 
+| summarize LastLogon = max(Timestamp) by AccountName, LogonType, DeviceName
+| where LastLogon < ago(14d)

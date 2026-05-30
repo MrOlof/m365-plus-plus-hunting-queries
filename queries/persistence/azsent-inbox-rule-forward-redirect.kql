@@ -1,0 +1,5 @@
+// Inbox rule changes which forward/redirect email
+CloudAppEvents
+| where ActionType contains "Set-InboxRule"
+|extend Parameters = tostring((parse_json(RawEventData)).Parameters)
+|where Parameters contains "ForwardTo" or Parameters contains "RedirectTo"

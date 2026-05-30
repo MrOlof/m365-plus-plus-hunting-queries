@@ -1,0 +1,57 @@
+// Short-lived ephemeral code signing certificates
+// --- ADAPTATION GUIDE ---
+// 1. EphemeralThreshold: 14 days is the 'anomalous zone'. Values over 30d may lead to higher false positives.
+// 2. DevSoftwareKeywords: Add internal dev tools (e.g., 'Jenkins', 'TeamCity') to reduce noise.
+// 3. devDeviceTags: Add internal dev device group name to reduce noise.
+// 4. ExcludedIssuers: Add your organization's internal CA name here to prevent false positives.
+
+let ephemeralThreshold = 14d;
+let lookback = 7d;
+let devSoftwareKeywords = dynamic(["Visual Studio", "IntelliJ", "Jenkins", "GitHub", "Git", "Kubernetes", "Docker", "Sublime"]);
+let devDeviceTags = dynamic(["Engineering", "Dev-Workstation", "Build-Server"]);
+let excludedIssuers = dynamic(["Internal-CA-Example", "Local-Admin-Signer"]);
+
+// Step 1: Create a lookup table of developer assets likely to use legitimate short-lived certificates via Software and Device Tags
+let devAssets = (
+  DeviceTvmSoftwareInventory
+  | where SoftwareName has_any (devSoftwareKeywords)
+  | summarize by DeviceId
+  | union (
+    DeviceInfo
+    | where Timestamp >= ago(lookback)
+    | where RegistryDeviceTag has_any (devDeviceTags) 
+      // Optional table if used: or DeviceDynamicTags has_any (devDeviceTags) 
+      // Optional table if used: or DeviceManualTags has_any (devDeviceTags)
+    | summarize by DeviceId
+  )
+  | summarize by DeviceId
+);
+
+// Step 2: Identify certificates within the 14-day anomalous window
+DeviceFileCertificateInfo
+| extend TotalLifespan = CertificateExpirationTime - CertificateCreationTime
+| where TotalLifespan <= ephemeralThreshold and TotalLifespan > 0d
+| where isnotempty(Issuer) and not(Issuer has_any (excludedIssuers))
+
+// Step 3: Remove known dev machines to surface anomalies on standard user endpoints
+| join kind=leftanti (devAssets) on DeviceId
+
+// Step 4: Enrich with the latest machine details
+| join kind=inner (
+    DeviceInfo 
+    | where Timestamp >= ago(lookback)
+    | summarize arg_max(Timestamp, *) by DeviceId
+  ) on DeviceId
+| project 
+    Timestamp, 
+    DeviceName,
+    DeviceId,
+    PublicIP, 
+    LoggedOnUsers,
+    SHA1,
+    Signer,
+    Issuer, 
+    IsTrusted,
+    TotalLifespan, 
+    CertificateCreationTime, 
+    CertificateExpirationTime

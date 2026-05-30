@@ -1,0 +1,149 @@
+// First-time network connection by unusual process
+// DETECTION STRATEGY: Behavioral profiling of evasive network execution contexts using cryptographic identity baselining.
+// THE MECHANIC: Attackers leverage DLL sideloading or "Bring Your Own Trusted App" (BYOTA) by dropping legitimate signed binaries (e.g., Greenshot, SyncTrayzor) into user-writable directories to proxy C2 traffic and bypass EDR.
+// THE RESILIENCE: By baselining the [DeviceId + FileName + Signer], this query remains resilient to legitimate software updates (where hashes change but signers stay the same). It traps the attacker the moment they introduce an anomalous communication profile to a host, regardless of the binary's perceived "legitimacy."
+
+// ---------------------------------------------------------------------------
+// Variable Definitions
+// ---------------------------------------------------------------------------
+
+// Why: Establishes a time offset to prevent "Flash Attacks" from contaminating the baseline.
+let runDelay = 1d; 
+let baselineDays = 14d;
+let startBaseline = ago(baselineDays + runDelay);
+let endBaseline = ago(runDelay);
+
+// Why: Prevalent enterprise applications update from user-writable directories and generate massive noise.
+// Note: Replace this datatable with a Sentinel Watchlist in production: _GetWatchlist('Allowed_Network_Apps')
+let globalAllowedApps = datatable(FileName:string, Signer:string)[
+  "teams.exe", "Microsoft Corporation",
+  "zoom.exe", "Zoom Video Communications, Inc.",
+  "chrome.exe", "Google LLC",
+  "msedge.exe", "Microsoft Corporation",
+  "onedrive.exe", "Microsoft Corporation"
+];
+
+// ---------------------------------------------------------------------------
+// Pipeline Execution
+// ---------------------------------------------------------------------------
+
+// STEP 1: Environmental Scoping
+let devDevices = DeviceInfo
+  | where Timestamp > startBaseline
+  | where isnotempty(DeviceId)
+  | where MachineGroup has_any ("Dev", "Developers", "Engineering") 
+  | distinct DeviceId;
+
+// STEP 2: Certificate Validation & Trust Extraction
+let trustedCertificates = DeviceFileCertificateInfo
+  | where Timestamp > startBaseline
+  | where isnotempty(SHA1)
+  | where IsSigned == true and IsTrusted == true
+  | summarize arg_max(Timestamp, Signer) by SHA1;
+
+// STEP 3: Historical Baselining (The 14-day window)
+let networkBaseline = DeviceNetworkEvents
+  | where Timestamp between (startBaseline .. endBaseline)
+  | where RemoteIPType == "Public" 
+  | where isnotempty(InitiatingProcessFileName)
+  | lookup kind=leftouter trustedCertificates on $left.InitiatingProcessSHA1 == $right.SHA1
+  | extend ExactSigner = coalesce(Signer, "Unsigned")
+  | summarize by DeviceId, InitiatingProcessFileName, ExactSigner;
+
+// STEP 4: Active Window Evaluation (The last 24 hours)
+let recentActivity = DeviceNetworkEvents
+  | where Timestamp > endBaseline
+  | where RemoteIPType == "Public"
+  | where isnotempty(InitiatingProcessFileName)
+  // CONDITION A: Exclude known Developer machines to reduce noise.
+  | where DeviceId !in (devDevices)
+  | lookup kind=leftouter trustedCertificates on $left.InitiatingProcessSHA1 == $right.SHA1
+  | extend ExactSigner = coalesce(Signer, "Unsigned")
+  // CONDITION B: Pre-filter globally allowed applications (Broadcast hint for memory optimization)
+  | join kind=leftanti globalAllowedApps on $left.InitiatingProcessFileName == $right.FileName and $left.ExactSigner == $right.Signer
+  | summarize 
+      StartTime = min(Timestamp), 
+      EndTime = max(Timestamp), 
+      ConnectionCount = count(), 
+      TargetIPs = make_set(RemoteIP, 5), 
+      TargetPorts = make_set(RemotePort, 5), 
+      TargetURLs = make_set(RemoteUrl, 5) 
+    by 
+      DeviceId, 
+      DeviceName, 
+      InitiatingProcessAccountDomain,
+      InitiatingProcessAccountName, 
+      InitiatingProcessFileName, 
+      ExactSigner, 
+      InitiatingProcessFolderPath, 
+      InitiatingProcessCommandLine, 
+      InitiatingProcessParentFileName, 
+      InitiatingProcessSHA1,
+      InitiatingProcessId;
+
+// STEP 5: Delta Comparison & Triage Output Generation
+recentActivity
+  | join kind=leftanti networkBaseline on DeviceId, InitiatingProcessFileName, ExactSigner
+  
+  // ---------------------------------------------------------------------------
+  // ANALYST ACTION: Evaluate the 'SuspectProcessName' and its 'VerifiedSigner'. 
+  // If the process is a known administrative tool (e.g., AnyDesk, Rclone, NetExec) or 
+  // a hijacked utility (Greenshot) that is NOT part of the standard local baseline, 
+  // investigate the 'TargetIPs' for evidence of data exfiltration or C2 beaconing.
+  
+  // Schema Alignment: Explicitly cast types to match Sentinel entity mapping schemas
+  | extend 
+      timestamp = StartTime, 
+      HostCustomEntity = tostring(DeviceName), 
+      AccountNTDomain = tostring(InitiatingProcessAccountDomain),
+      AccountName = tostring(InitiatingProcessAccountName), 
+      ProcessIdString = tostring(InitiatingProcessId),
+      IPCustomEntity = tostring(TargetIPs[0]), 
+      FileHashCustomEntity = tostring(InitiatingProcessSHA1),
+      HashAlgorithm = "SHA1",
+      // Contextual Renaming: Translate schema language into incident narrative
+      SuspectProcessName = InitiatingProcessFileName,
+      VerifiedSigner = ExactSigner,
+      ExecutionPath = InitiatingProcessFolderPath
+      
+  // Data Sanitization: Drop all unnecessary calculation columns
+  | project 
+      StartTime, 
+      EndTime, 
+      DeviceName, 
+      AccountNTDomain,
+      AccountName, 
+      SuspectProcessName, 
+      VerifiedSigner, 
+      ExecutionPath, 
+      InitiatingProcessCommandLine, 
+      TargetURLs, 
+      TargetIPs, 
+      TargetPorts, 
+      InitiatingProcessParentFileName, 
+      ConnectionCount, 
+      InitiatingProcessSHA1, 
+      ProcessIdString,
+      HashAlgorithm,
+      timestamp, 
+      HostCustomEntity, 
+      IPCustomEntity, 
+      FileHashCustomEntity
+      
+  // Visual Hierarchy: Left-to-right chronological narrative for the Tier 1 Analyst
+  | project-reorder 
+      StartTime, 
+      EndTime, 
+      DeviceName, 
+      AccountNTDomain,
+      AccountName, 
+      SuspectProcessName, 
+      InitiatingProcessCommandLine, 
+      ExecutionPath, 
+      TargetIPs, 
+      TargetURLs, 
+      TargetPorts,
+      VerifiedSigner, 
+      InitiatingProcessParentFileName, 
+      ConnectionCount, 
+      InitiatingProcessSHA1

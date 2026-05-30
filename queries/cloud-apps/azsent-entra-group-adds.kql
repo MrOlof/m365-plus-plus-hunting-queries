@@ -1,0 +1,8 @@
+// Entra ID group adds in the last 7 days
+let LookBack = 7d;
+CloudAppEvents
+| where ActionType in ("Add member to group.") and AccountType == "Regular" and Timestamp > ago(LookBack)
+| extend SecondElement = RawEventData.ModifiedProperties[1]
+| extend UserAddedId = RawEventData.ObjectId
+| extend GroupName = SecondElement.NewValue
+| project Timestamp, ActionType,UserAddedId,PerformedBy = AccountDisplayName,GroupName

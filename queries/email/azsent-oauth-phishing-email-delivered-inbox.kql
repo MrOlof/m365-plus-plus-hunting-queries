@@ -1,0 +1,6 @@
+// Potential OAuth phishing email delivered into Inbox
+let ConsentUrls = pack_array("://login.microsoftonline.com/common/oauth2", "://login.microsoftonline.com/consumers/oauth2", "://login.microsoftonline.com/organizations/oauth2", "://login.microsoftonline.us/common/oauth2", "://login.microsoftonline.us/consumers/oauth2", "://login.microsoftonline.us/organizations/oauth2");
+EmailUrlInfo
+| where Url has_any (ConsentUrls)
+| join EmailEvents on NetworkMessageId
+| where EmailDirection == "Inbound" and LatestDeliveryAction == "Delivered"

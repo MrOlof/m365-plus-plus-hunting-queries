@@ -1,0 +1,9 @@
+// File download events in the last 7 days
+let LookBack = 7d;
+CloudAppEvents
+| where ActionType == "FileDownloaded" and Timestamp > ago(LookBack)
+| extend FileName = RawEventData.SourceFileName
+| extend Site = RawEventData.SiteUrl
+| extend FileLabel = RawEventData.SensitivityLabelId
+| extend SiteLabel = RawEventData.SiteSensitivityLabelId
+| project Timestamp,AccountObjectId,AccountDisplayName,ActionType,Application,FileName,Site,FileLabel,SiteLabel

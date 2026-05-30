@@ -1,0 +1,12 @@
+// Activities performed while connected to an Anonymous Proxy
+CloudAppEvents
+| where IsAnonymousProxy == 1
+| extend UserId = tostring(parse_json(RawEventData).UserId)
+| summarize
+     TotalActivities = count(),
+     ActionsPerformed = make_set(ActionType),
+     OSUsed = make_set(OSPlatform),
+     IPsUsed = make_set(IPAddress)
+     by AccountId, UserId
+| project AccountId, UserId, TotalActivities, ActionsPerformed, OSUsed, IPsUsed
+| sort by TotalActivities
