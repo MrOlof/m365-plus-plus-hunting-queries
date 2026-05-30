@@ -1,0 +1,75 @@
+{
+  "version": "0.1.0",
+  "queries": [
+    {
+      "id": "mde-onboarded-not-reporting",
+      "title": "Onboarded devices not reporting (silent sensors)",
+      "description": "Devices marked Onboarded whose sensor is no longer Active or that haven't checked in for 7+ days. The portal's green status only reflects EDR telemetry reaching the cloud, so these silent sensors hide in plain sight.",
+      "category": "MDE coverage & health",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": ["DeviceInfo"],
+      "platform": "defender",
+      "license": "M365++-original",
+      "credit": "M365++",
+      "sourceUrl": "https://github.com/MrOlof/m365-plus-plus-hunting-queries",
+      "file": "queries/mde-coverage-health/onboarded-not-reporting.kql"
+    },
+    {
+      "id": "mde-can-be-onboarded",
+      "title": "Devices that can be onboarded but aren't",
+      "description": "Devices Defender knows about and could manage, still sitting in 'Can be onboarded' state — the cross-system coverage gap between inventory and actual EDR protection.",
+      "category": "MDE coverage & health",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": ["DeviceInfo"],
+      "platform": "defender",
+      "license": "M365++-original",
+      "credit": "M365++",
+      "sourceUrl": "https://github.com/MrOlof/m365-plus-plus-hunting-queries",
+      "file": "queries/mde-coverage-health/can-be-onboarded.kql"
+    },
+    {
+      "id": "mde-antivirus-not-compliant",
+      "title": "Antivirus configuration not compliant",
+      "description": "Devices failing one or more Defender Antivirus secure-configuration checks (real-time protection, signature freshness, tamper protection, etc.) from TVM's configuration assessment.",
+      "category": "MDE coverage & health",
+      "mitreTactics": ["Defense Evasion"],
+      "mitreTechniques": ["T1562.001"],
+      "tables": ["DeviceTvmSecureConfigurationAssessment"],
+      "platform": "defender",
+      "license": "M365++-original",
+      "credit": "M365++",
+      "sourceUrl": "https://github.com/MrOlof/m365-plus-plus-hunting-queries",
+      "file": "queries/mde-coverage-health/antivirus-not-compliant.kql"
+    },
+    {
+      "id": "threat-recent-malware",
+      "title": "Recent malware detections (last 7 days)",
+      "description": "Devices with malware-category alerts in the past week, ranked by distinct alert count with a sample of alert titles.",
+      "category": "Threat activity",
+      "mitreTactics": ["Execution"],
+      "mitreTechniques": [],
+      "tables": ["AlertInfo", "AlertEvidence"],
+      "platform": "defender",
+      "license": "M365++-original",
+      "credit": "M365++",
+      "sourceUrl": "https://github.com/MrOlof/m365-plus-plus-hunting-queries",
+      "file": "queries/threat-activity/recent-malware.kql"
+    },
+    {
+      "id": "threat-high-severity-by-device",
+      "title": "Devices with high-severity alerts (last 30 days)",
+      "description": "Triage shortlist: devices carrying high-severity alerts in the past 30 days, ranked by distinct alert count with sample titles.",
+      "category": "Threat activity",
+      "mitreTactics": [],
+      "mitreTechniques": [],
+      "tables": ["AlertInfo", "AlertEvidence"],
+      "platform": "defender",
+      "license": "M365++-original",
+      "credit": "M365++",
+      "sourceUrl": "https://github.com/MrOlof/m365-plus-plus-hunting-queries",
+      "file": "queries/threat-activity/high-severity-by-device.kql"
+    }
+  ]
+}

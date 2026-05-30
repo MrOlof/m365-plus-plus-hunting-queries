@@ -1,0 +1,10 @@
+// Onboarded devices not reporting (silent sensors)
+// Latest record per device; flag onboarded devices whose sensor isn't Active
+// or that haven't reported in the last 7 days.
+DeviceInfo
+| where Timestamp > ago(30d)
+| summarize arg_max(Timestamp, *) by DeviceId
+| where OnboardingStatus == "Onboarded"
+| where SensorHealthState != "Active" or Timestamp < ago(7d)
+| project DeviceName, OnboardingStatus, SensorHealthState, OSPlatform, OSVersion, LastSeen = Timestamp
+| sort by LastSeen asc

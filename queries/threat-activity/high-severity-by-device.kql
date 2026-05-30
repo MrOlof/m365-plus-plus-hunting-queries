@@ -1,0 +1,10 @@
+// Devices with high-severity alerts (last 30 days)
+// Triage shortlist of devices carrying high-severity alerts, ranked by distinct
+// alert count with a sample of titles.
+AlertInfo
+| where Timestamp > ago(30d)
+| where Severity == "High"
+| join kind=inner AlertEvidence on AlertId
+| where isnotempty(DeviceName)
+| summarize HighAlerts = dcount(AlertId), SampleTitles = make_set(Title, 5) by DeviceName
+| sort by HighAlerts desc

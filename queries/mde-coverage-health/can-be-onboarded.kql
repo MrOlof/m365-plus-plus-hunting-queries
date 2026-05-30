@@ -1,0 +1,9 @@
+// Devices that can be onboarded but aren't
+// The coverage gap: Defender sees the device and could manage it, but EDR has
+// never been turned on for it.
+DeviceInfo
+| where Timestamp > ago(30d)
+| summarize arg_max(Timestamp, *) by DeviceId
+| where OnboardingStatus == "Can be onboarded"
+| project DeviceName, OnboardingStatus, OSPlatform, OSVersion, LastSeen = Timestamp
+| sort by DeviceName asc

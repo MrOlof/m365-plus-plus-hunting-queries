@@ -1,0 +1,9 @@
+// Antivirus configuration not compliant
+// Devices failing one or more applicable Defender Antivirus secure-config
+// checks (RTP, signature freshness, tamper protection, etc.), with the set of
+// failing checks per device.
+DeviceTvmSecureConfigurationAssessment
+| where ConfigurationCategory == "Antivirus"
+| where IsApplicable == 1 and IsCompliant == 0
+| summarize FailingChecks = make_set(ConfigurationName) by DeviceName, DeviceId
+| sort by DeviceName asc
